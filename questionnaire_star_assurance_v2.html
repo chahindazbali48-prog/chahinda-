@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionnaire STAR Assurance – IA & Estimation des Sinistres</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #B8922A; --gold-light: #D4AF5A; --gold-pale: #FDF6E7;
+    --navy: #0E1F3D; --navy-mid: #1C3461; --navy-light: #2B4A8A;
+    --cream: #FAF7F2; --ink: #1A1A2E; --muted: #6B7280;
+    --border: #E2D9C8; --white: #FFFFFF; --section-bg: #F5F0E8;
+    --red: #C0392B;
+    --client-color: #1A5C3A; --client-light: #E8F5EE; --client-border: #A8D5B8;
+    --agent-color: #1A3A6B; --agent-light: #E8EEF8; --agent-border: #A8BED8;
+    --shared-color: #5C4A1A; --shared-light: #F8F2E8; --shared-border: #D8C8A8;
+  }
+  @media print {
+    body { background: white; }
+    .no-print { display: none !important; }
+    .q-block { break-inside: avoid; }
+    section { break-inside: avoid; }
+    .cover { page-break-after: always; }
+  }
+  body { font-family: 'Source Sans 3', sans-serif; background: #EFEFEF; color: var(--ink); font-size: 13px; line-height: 1.6; }
+  .document { max-width: 840px; margin: 30px auto; background: var(--white); box-shadow: 0 4px 40px rgba(0,0,0,0.15); }
+
+  /* COVER */
+  .cover { background: var(--navy); padding: 60px 60px 50px; position: relative; overflow: hidden; }
+  .cover::before { content: ''; position: absolute; top: -80px; right: -80px; width: 380px; height: 380px; border: 60px solid rgba(184,146,42,0.12); border-radius: 50%; }
+  .cover::after { content: ''; position: absolute; bottom: -60px; left: -60px; width: 280px; height: 280px; border: 40px solid rgba(184,146,42,0.08); border-radius: 50%; }
+  .cover-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 50px; }
+  .logo-box { display: flex; align-items: center; gap: 14px; }
+  .logo-star { width: 56px; height: 56px; background: var(--gold); clip-path: polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); }
+  .logo-text { color: var(--white); font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; letter-spacing: 3px; }
+  .logo-subtitle { color: var(--gold-light); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+  .doc-badge { background: rgba(184,146,42,0.2); border: 1px solid rgba(184,146,42,0.4); color: var(--gold-light); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; padding: 6px 14px; border-radius: 2px; }
+  .cover-divider { width: 80px; height: 2px; background: var(--gold); margin-bottom: 28px; }
+  .cover h1 { font-family: 'Playfair Display', serif; color: var(--white); font-size: 28px; font-weight: 700; line-height: 1.3; margin-bottom: 16px; position: relative; z-index: 1; }
+  .cover-subtitle { color: rgba(255,255,255,0.65); font-size: 14px; max-width: 580px; line-height: 1.6; margin-bottom: 40px; position: relative; z-index: 1; }
+  .cover-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 24px; position: relative; z-index: 1; }
+  .meta-item label { display: block; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold-light); margin-bottom: 6px; }
+  .meta-item .meta-line { border-bottom: 1px solid rgba(255,255,255,0.3); height: 22px; }
+
+  /* PROFILE SELECTOR BANNER */
+  .profile-selector { background: var(--section-bg); border-bottom: 2px solid var(--border); padding: 20px 52px; }
+  .profile-selector h3 { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--navy); font-weight: 600; margin-bottom: 12px; }
+  .profile-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .profile-card { border: 2px solid var(--border); border-radius: 6px; padding: 14px 18px; background: var(--white); cursor: pointer; transition: border-color 0.2s; }
+  .profile-card.client-card { border-color: var(--client-border); background: var(--client-light); }
+  .profile-card.agent-card { border-color: var(--agent-border); background: var(--agent-light); }
+  .profile-card-icon { font-size: 22px; margin-bottom: 6px; }
+  .profile-card-title { font-weight: 600; font-size: 13px; color: var(--navy); }
+  .profile-card-desc { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+  /* INSTRUCTIONS */
+  .instructions { background: var(--gold-pale); border-left: 4px solid var(--gold); margin: 28px 52px 0; padding: 16px 20px; border-radius: 0 4px 4px 0; }
+  .instructions h3 { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 8px; }
+  .instructions ul { list-style: none; padding: 0; }
+  .instructions ul li { padding-left: 16px; position: relative; color: #555; font-size: 12.5px; margin-bottom: 4px; }
+  .instructions ul li::before { content: '›'; position: absolute; left: 0; color: var(--gold); font-weight: 600; }
+
+  /* ROUTING NOTE */
+  .routing-note { margin: 16px 52px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .route-box { padding: 10px 14px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+  .route-box.client { background: var(--client-light); border: 1px solid var(--client-border); color: var(--client-color); }
+  .route-box.agent { background: var(--agent-light); border: 1px solid var(--agent-border); color: var(--agent-color); }
+  .route-box.shared { background: var(--shared-light); border: 1px solid var(--shared-border); color: var(--shared-color); }
+
+  /* BODY */
+  .body-content { padding: 36px 52px 52px; }
+  section { margin-bottom: 36px; }
+
+  /* SECTION HEADERS */
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1.5px solid var(--border); }
+  .section-num { width: 34px; height: 34px; background: var(--navy); color: var(--gold-light); font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-num.client { background: var(--client-color); }
+  .section-num.agent { background: var(--agent-color); }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--navy); font-weight: 600; }
+  .section-desc { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+  /* TARGET BADGE */
+  .target-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
+  .target-badge.client { background: var(--client-light); color: var(--client-color); border: 1px solid var(--client-border); }
+  .target-badge.agent { background: var(--agent-light); color: var(--agent-color); border: 1px solid var(--agent-border); }
+  .target-badge.shared { background: var(--shared-light); color: var(--shared-color); border: 1px solid var(--shared-border); }
+
+  /* SECTION BAND */
+  .section-band { border-left: 4px solid var(--border); padding: 16px 20px; border-radius: 0 6px 6px 0; margin-bottom: 20px; }
+  .section-band.client-band { border-left-color: var(--client-color); background: var(--client-light); }
+  .section-band.agent-band { border-left-color: var(--agent-color); background: var(--agent-light); }
+  .section-band.shared-band { border-left-color: var(--gold); background: var(--gold-pale); }
+  .section-band p { font-size: 12.5px; color: #444; }
+
+  /* QUESTIONS */
+  .question-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .question-grid.single { grid-template-columns: 1fr; }
+  .q-block { padding: 16px 18px; border-radius: 4px; border: 1px solid var(--border); background: #F9F7F3; }
+  .q-block.full { grid-column: 1 / -1; }
+  .q-block.client-q { background: #F0F8F3; border-color: var(--client-border); }
+  .q-block.agent-q { background: #EEF2FA; border-color: var(--agent-border); }
+  .q-num { display: inline-block; background: var(--navy); color: var(--gold-light); font-size: 10px; font-weight: 600; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 10px; margin-bottom: 8px; }
+  .q-num.client { background: var(--client-color); }
+  .q-num.agent { background: var(--agent-color); }
+  .q-text { font-size: 13px; color: var(--ink); font-weight: 500; margin-bottom: 12px; line-height: 1.5; }
+  .q-required { color: var(--red); font-size: 11px; }
+
+  /* Inputs */
+  .answer-line { border: 0; border-bottom: 1.5px solid var(--border); background: transparent; width: 100%; padding: 5px 0; font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: var(--ink); outline: none; margin-bottom: 4px; }
+  .answer-line:focus { border-color: var(--navy-light); }
+  .answer-area { border: 1.5px solid var(--border); background: var(--white); border-radius: 3px; width: 100%; padding: 8px 10px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: var(--ink); outline: none; resize: vertical; min-height: 72px; }
+  .answer-area:focus { border-color: var(--navy-light); }
+
+  /* Options */
+  .options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .options.vertical { flex-direction: column; gap: 6px; }
+  .opt-label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px; color: #444; background: var(--white); border: 1px solid var(--border); padding: 5px 12px; border-radius: 3px; transition: border-color 0.2s; white-space: nowrap; }
+  .opt-label:hover { border-color: var(--navy-light); color: var(--navy); }
+  .opt-label input[type="radio"], .opt-label input[type="checkbox"] { accent-color: var(--navy); width: 14px; height: 14px; flex-shrink: 0; }
+  .opt-label.wide { white-space: normal; }
+
+  /* Scale */
+  .scale-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+  .scale-label { font-size: 11px; color: var(--muted); min-width: 80px; }
+  .scale-label.right { text-align: right; min-width: 80px; }
+  .scale-boxes { display: flex; flex: 1; justify-content: center; gap: 10px; }
+  .scale-box { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .scale-box input[type="radio"] { accent-color: var(--navy); width: 15px; height: 15px; cursor: pointer; }
+  .scale-box span { font-size: 11px; color: var(--muted); }
+
+  /* Likert */
+  .likert-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+  .likert-table thead tr th { background: var(--navy); color: var(--gold-light); padding: 6px 8px; text-align: center; font-weight: 500; font-size: 11px; }
+  .likert-table.client-table thead tr th { background: var(--client-color); }
+  .likert-table.agent-table thead tr th { background: var(--agent-color); }
+  .likert-table thead tr th:first-child { text-align: left; }
+  .likert-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.7); }
+  .likert-table tbody tr:nth-child(odd) { background: rgba(255,255,255,0.35); }
+  .likert-table td { padding: 7px 8px; text-align: center; border-bottom: 1px solid var(--border); }
+  .likert-table td:first-child { text-align: left; color: #444; font-size: 12px; }
+  .likert-table td input[type="radio"] { accent-color: var(--navy); width: 14px; height: 14px; cursor: pointer; }
+
+  /* Rank table */
+  .rank-table { width: 100%; font-size: 12.5px; border-collapse: collapse; margin-top: 8px; }
+  .rank-table thead tr { background: var(--navy); color: var(--gold-light); }
+  .rank-table.client-rank thead tr { background: var(--client-color); }
+  .rank-table.agent-rank thead tr { background: var(--agent-color); }
+  .rank-table th { padding: 7px 10px; text-align: left; }
+  .rank-table th:last-child { text-align: center; width: 90px; }
+  .rank-table td { padding: 6px 10px; border-bottom: 1px solid var(--border); }
+  .rank-table td:last-child { text-align: center; }
+  .rank-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.7); }
+  .rank-table tbody tr:nth-child(odd) { background: rgba(255,255,255,0.35); }
+  .rank-input { width: 50px; border: 1px solid #ccc; border-radius: 3px; padding: 3px; text-align: center; font-size: 12px; }
+
+  /* Signature */
+  .signature-block { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 30px; padding: 22px 24px; border: 1px solid var(--border); border-radius: 4px; background: var(--section-bg); }
+  .sig-field label { display: block; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .sig-line { border-bottom: 1.5px solid var(--navy); height: 30px; width: 100%; }
+
+  /* Footer */
+  .doc-footer { background: var(--navy); padding: 18px 52px; display: flex; align-items: center; justify-content: space-between; }
+  .doc-footer p { color: rgba(255,255,255,0.5); font-size: 11px; }
+  .doc-footer .footer-gold { color: var(--gold-light); font-weight: 600; }
+
+  /* Print bar */
+  .print-bar { text-align: center; padding: 20px; background: #E8E8E8; }
+  .btn-print { background: var(--navy); color: var(--white); border: none; padding: 11px 32px; font-family: 'Source Sans 3', sans-serif; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; border-radius: 2px; margin: 0 6px; }
+  .btn-print:hover { background: var(--navy-light); }
+
+  /* LEGEND BAR */
+  .legend-bar { display: flex; gap: 20px; align-items: center; margin: 20px 52px 0; padding: 12px 18px; background: var(--white); border: 1px solid var(--border); border-radius: 4px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #444; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+  .legend-dot.shared { background: #B8922A; }
+  .legend-dot.client { background: #1A5C3A; }
+  .legend-dot.agent { background: #1A3A6B; }
+
+  /* DIVIDER */
+  .part-divider { text-align: center; margin: 32px 0 24px; position: relative; }
+  .part-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1.5px; background: var(--border); }
+  .part-divider span { position: relative; background: var(--white); padding: 0 16px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="print-bar no-print">
+  <button class="btn-print" onclick="window.print()">🖨 Imprimer / Exporter en PDF</button>
+</div>
+
+<div class="document">
+
+  <!-- ══ COUVERTURE ══ -->
+  <div class="cover">
+    <div class="cover-top">
+      <div class="logo-box">
+        <div class="logo-star"></div>
+        <div>
+          <div class="logo-text">STAR</div>
+          <div class="logo-subtitle">Assurance &amp; Réassurance</div>
+        </div>
+      </div>
+      <div class="doc-badge">Recherche Académique</div>
+    </div>
+    <div class="cover-divider"></div>
+    <h1>Questionnaire sur la Contribution de l'Intelligence Artificielle à l'Estimation de la Probabilité des Sinistres</h1>
+    <p class="cover-subtitle">Ce questionnaire s'inscrit dans le cadre d'une étude académique visant à analyser comment les outils d'IA peuvent améliorer l'évaluation des risques et la prédiction des sinistres en assurance. Il est destiné à deux catégories de répondants : les <strong style="color:var(--gold-light)">clients</strong> d'assurance (STAR ou autres) et les <strong style="color:var(--gold-light)">agents / professionnels</strong> du secteur.</p>
+    <div class="cover-meta">
+      <div class="meta-item"><label>Répondant</label><div class="meta-line"></div></div>
+      <div class="meta-item"><label>Date</label><div class="meta-line"></div></div>
+      <div class="meta-item"><label>Code anonyme</label><div class="meta-line"></div></div>
+    </div>
+  </div>
+
+  <!-- LÉGENDE -->
+  <div class="legend-bar">
+    <strong style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--navy);">Légende des sections :</strong>
+    <div class="legend-item"><div class="legend-dot shared"></div> Questions communes (tous répondants)</div>
+    <div class="legend-item"><div class="legend-dot client"></div> Questions réservées aux clients</div>
+    <div class="legend-item"><div class="legend-dot agent"></div> Questions réservées aux agents / professionnels</div>
+  </div>
+
+  <!-- GUIDE D'ORIENTATION -->
+  <div class="routing-note">
+    <div class="route-box client">👤 <strong>Vous êtes client(e) ?</strong> — Remplissez les sections I, II, III (partie client), IV et VI.</div>
+    <div class="route-box agent">🏢 <strong>Vous êtes agent / professionnel ?</strong> — Remplissez les sections I, II, III (partie agent), V et VI.</div>
+  </div>
+
+  <!-- INSTRUCTIONS -->
+  <div class="instructions">
+    <h3>Instructions de remplissage</h3>
+    <ul>
+      <li>Ce questionnaire est <strong>strictement confidentiel</strong> — vos réponses sont anonymisées et utilisées uniquement à des fins de recherche.</li>
+      <li>Identifiez d'abord votre profil (client ou agent) puis suivez le guide d'orientation ci-dessus.</li>
+      <li>Répondez à toutes les questions des sections qui vous sont destinées. Les questions marquées <strong>(*)</strong> sont obligatoires.</li>
+      <li>Pour les choix multiples, cochez toutes les cases applicables. Pour les classements, indiquez un rang unique par ligne.</li>
+      <li>Durée estimée : <strong>15 à 20 minutes</strong>.</li>
+    </ul>
+  </div>
+
+  <!-- ══ CORPS DU QUESTIONNAIRE ══ -->
+  <div class="body-content">
+
+    <!-- ════════════════════════════════════════
+         SECTION I — PROFIL COMMUN
+    ═════════════════════════════════════════ -->
+    <section>
+      <div class="section-header">
+        <div class="section-num">I</div>
+        <div>
+          <div class="section-title">Profil Démographique du Répondant</div>
+          <div class="section-desc">À compléter par tous les répondants, quelle que soit leur catégorie.</div>
+        </div>
+      </div>
+      <div class="section-band shared-band">
+        <span class="target-badge shared">⬤ Section commune — tous répondants</span>
+        <p>Ces informations permettent de caractériser l'échantillon de l'étude. Aucun élément d'identification personnelle n'est demandé.</p>
+      </div>
+
+      <div class="question-grid">
+
+        <!-- Q1 -->
+        <div class="q-block full">
+          <span class="q-num">Q1</span>
+          <div class="q-text">Vous êtes : <span class="q-required">*</span> <em style="font-size:11px;color:var(--muted)">(Votre réponse détermine les sections à compléter)</em></div>
+          <div class="options">
+            <label class="opt-label"><input type="radio" name="q1" value="client_star"> Client(e) de STAR Assurance</label>
+            <label class="opt-label"><input type="radio" name="q1" value="client_autre"> Client(e) d'une autre compagnie d'assurance</label>
+            <label class="opt-label"><input type="radio" name="q1" value="agent_star"> Agent / Collaborateur chez STAR Assurance</label>
+            <label class="opt-label"><input type="radio" name="q1" value="agent_autre"> Professionnel(le) dans un autre organisme d'assurance</label>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="q-block">
+          <span class="q-num">Q2</span>
+          <div class="q-text">Genre : <span class="q-required">*</span></div>
+          <div class="options">
+            <label class="opt-label"><input type="radio" name="q2" value="M"> Masculin</label>
+            <label class="opt-label"><input type="radio" name="q2" value="F"> Féminin</label>
+            <label class="opt-label"><input type="radio" name="q2" value="NS"> Préfère ne pas préciser</label>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="q-block">
+          <span class="q-num">Q3</span>
+          <div class="q-text">Tranche d'âge : <span class="q-required">*</span></div>
+          <div class="options">
+            <label class="opt-label"><input type="radio" name="q3" value="18-25"> 18–25 ans</label>
+            <label class="opt-label"><input type="radio" name="q3" value="26-35"> 26–35 ans</label>
+            <label class="opt-label"><input type="radio" name="q3" value="36-45"> 36–45 ans</label>
+            <label class="opt-label"><input type="radio" name="q3" value="46-55"> 46–55 ans</label>
+            <label class="opt-label"><input type="radio" name="q3" value="56+"> 56 ans et plus</label>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="q-block">
+          <span class="q-num">Q4</span>
+          <div class="q-text">Niveau d'études le plus élevé obtenu :</div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="q4" value="bac"> Baccalauréat ou moins</label>
+            <label class="opt-label wide"><input type="radio" name="q4" value="bac2"> Bac +2 / BTS / DUT</label>
+            <label class="opt-label wide"><input type="radio" name="q4" value="licence"> Licence (Bac +3)</label>
+            <label class="opt-label wide"><input type="radio" name="q4" value="master"> Master / Ingénieur (Bac +5)</label>
+            <label class="opt-label wide"><input type="radio" name="q4" value="doctorat"> Doctorat ou plus</label>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="q-block">
+          <span class="q-num">Q5</span>
+          <div class="q-text">Statut professionnel actuel : <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="q5" value="salarie"> Salarié(e) secteur privé</label>
+            <label class="opt-label wide"><input type="radio" name="q5" value="fonctionnaire"> Fonctionnaire / Secteur public</label>
+            <label class="opt-label wide"><input type="radio" name="q5" value="independant"> Travailleur(euse) indépendant(e)</label>
+            <label class="opt-label wide"><input type="radio" name="q5" value="etudiant"> Étudiant(e)</label>
+            <label class="opt-label wide"><input type="radio" name="q5" value="retraite"> Retraité(e)</label>
+            <label class="opt-label wide"><input type="radio" name="q5" value="autre"> Autre</label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════
+         SECTION II — COMMUN : IA & Assurance
+    ═════════════════════════════════════════ -->
+    <section>
+      <div class="section-header">
+        <div class="section-num">II</div>
+        <div>
+          <div class="section-title">Perception Générale de l'Intelligence Artificielle en Assurance</div>
+          <div class="section-desc">À compléter par tous les répondants.</div>
+        </div>
+      </div>
+      <div class="section-band shared-band">
+        <span class="target-badge shared">⬤ Section commune — tous répondants</span>
+        <p>Ces questions mesurent votre niveau de familiarité et vos opinions générales sur l'IA appliquée au secteur de l'assurance.</p>
+      </div>
+
+      <div class="question-grid">
+
+        <!-- Q6 -->
+        <div class="q-block">
+          <span class="q-num">Q6</span>
+          <div class="q-text">Quel est votre niveau de familiarité avec le concept d'Intelligence Artificielle (IA) ? <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="q6" value="0"> Je ne connais pas du tout ce terme</label>
+            <label class="opt-label wide"><input type="radio" name="q6" value="1"> J'en ai entendu parler vaguement</label>
+            <label class="opt-label wide"><input type="radio" name="q6" value="2"> Je comprends les principes de base</label>
+            <label class="opt-label wide"><input type="radio" name="q6" value="3"> Je l'utilise ou l'ai déjà utilisée</label>
+            <label class="opt-label wide"><input type="radio" name="q6" value="4"> J'ai une formation technique en IA</label>
+          </div>
+        </div>
+
+        <!-- Q7 -->
+        <div class="q-block">
+          <span class="q-num">Q7</span>
+          <div class="q-text">Avez-vous déjà interagi avec un outil d'IA dans le cadre de l'assurance ? <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="q7" value="oui_souvent"> Oui, régulièrement</label>
+            <label class="opt-label wide"><input type="radio" name="q7" value="oui_peu"> Oui, quelques fois</label>
+            <label class="opt-label wide"><input type="radio" name="q7" value="non"> Non, jamais</label>
+            <label class="opt-label wide"><input type="radio" name="q7" value="sais_pas"> Je ne sais pas</label>
+          </div>
+        </div>
+
+        <!-- Q8 Likert -->
+        <div class="q-block full">
+          <span class="q-num">Q8</span>
+          <div class="q-text">Dans quelle mesure êtes-vous d'accord avec les affirmations suivantes ? <span class="q-required">*</span><br><small style="color:var(--muted)">(1 = Totalement en désaccord &nbsp;·&nbsp; 5 = Totalement d'accord)</small></div>
+          <table class="likert-table">
+            <thead><tr><th style="width:52%">Affirmation</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+            <tbody>
+              <tr><td>L'IA peut améliorer la précision de l'évaluation du risque individuel</td><td><input type="radio" name="l1" value="1"></td><td><input type="radio" name="l1" value="2"></td><td><input type="radio" name="l1" value="3"></td><td><input type="radio" name="l1" value="4"></td><td><input type="radio" name="l1" value="5"></td></tr>
+              <tr><td>L'utilisation de l'IA pour fixer les primes d'assurance est équitable</td><td><input type="radio" name="l2" value="1"></td><td><input type="radio" name="l2" value="2"></td><td><input type="radio" name="l2" value="3"></td><td><input type="radio" name="l2" value="4"></td><td><input type="radio" name="l2" value="5"></td></tr>
+              <tr><td>La transparence des algorithmes IA est essentielle pour instaurer la confiance</td><td><input type="radio" name="l3" value="1"></td><td><input type="radio" name="l3" value="2"></td><td><input type="radio" name="l3" value="3"></td><td><input type="radio" name="l3" value="4"></td><td><input type="radio" name="l3" value="5"></td></tr>
+              <tr><td>L'IA pose des risques en matière de confidentialité des données personnelles</td><td><input type="radio" name="l4" value="1"></td><td><input type="radio" name="l4" value="2"></td><td><input type="radio" name="l4" value="3"></td><td><input type="radio" name="l4" value="4"></td><td><input type="radio" name="l4" value="5"></td></tr>
+              <tr><td>L'intervention humaine reste indispensable même avec l'IA</td><td><input type="radio" name="l5" value="1"></td><td><input type="radio" name="l5" value="2"></td><td><input type="radio" name="l5" value="3"></td><td><input type="radio" name="l5" value="4"></td><td><input type="radio" name="l5" value="5"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Q9 -->
+        <div class="q-block full">
+          <span class="q-num">Q9</span>
+          <div class="q-text">Quelle est votre principale crainte vis-à-vis de l'utilisation de l'IA dans l'assurance ? <span class="q-required">*</span></div>
+          <div class="options" style="flex-wrap:wrap;">
+            <label class="opt-label wide"><input type="radio" name="q9" value="vie_priv"> Atteinte à la vie privée</label>
+            <label class="opt-label wide"><input type="radio" name="q9" value="biais"> Biais et discrimination algorithmique</label>
+            <label class="opt-label wide"><input type="radio" name="q9" value="emploi"> Remplacement des emplois humains</label>
+            <label class="opt-label wide"><input type="radio" name="q9" value="opacite"> Manque de transparence des décisions</label>
+            <label class="opt-label wide"><input type="radio" name="q9" value="securite"> Risques de sécurité des données</label>
+            <label class="opt-label wide"><input type="radio" name="q9" value="aucune"> Aucune crainte particulière</label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════
+         SECTION III — CLIENTS UNIQUEMENT
+    ═════════════════════════════════════════ -->
+    <div class="part-divider"><span>Section réservée aux clients</span></div>
+
+    <section>
+      <div class="section-header">
+        <div class="section-num client">III</div>
+        <div>
+          <div class="section-title" style="color:var(--client-color)">Expérience Client, Sinistres et Utilisation de l'Assurance</div>
+          <div class="section-desc">Réservée aux clients d'une compagnie d'assurance (STAR ou autre).</div>
+        </div>
+      </div>
+      <div class="section-band client-band">
+        <span class="target-badge client">👤 Réservée aux clients — Section III</span>
+        <p>Si vous êtes agent ou professionnel de l'assurance, passez directement à la <strong>Section IV</strong>. Ces questions portent sur votre expérience personnelle en tant qu'assuré et votre rapport aux sinistres.</p>
+      </div>
+
+      <div class="question-grid">
+
+        <!-- C1 -->
+        <div class="q-block client-q">
+          <span class="q-num client">C1</span>
+          <div class="q-text">Depuis combien d'années êtes-vous assuré(e) auprès d'une compagnie d'assurance ?</div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="c1" value="moins1"> Moins d'1 an</label>
+            <label class="opt-label wide"><input type="radio" name="c1" value="1-3"> 1 à 3 ans</label>
+            <label class="opt-label wide"><input type="radio" name="c1" value="3-7"> 3 à 7 ans</label>
+            <label class="opt-label wide"><input type="radio" name="c1" value="7+"> Plus de 7 ans</label>
+          </div>
+        </div>
+
+        <!-- C2 -->
+        <div class="q-block client-q">
+          <span class="q-num client">C2</span>
+          <div class="q-text">Quels types de contrats d'assurance détenez-vous actuellement ? <em>(Plusieurs réponses possibles)</em></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="checkbox" name="c2"> Assurance automobile</label>
+            <label class="opt-label wide"><input type="checkbox" name="c2"> Assurance habitation / multirisques</label>
+            <label class="opt-label wide"><input type="checkbox" name="c2"> Assurance vie / prévoyance</label>
+            <label class="opt-label wide"><input type="checkbox" name="c2"> Assurance maladie / santé</label>
+            <label class="opt-label wide"><input type="checkbox" name="c2"> Assurance responsabilité professionnelle</label>
+            <label class="opt-label wide"><input type="checkbox" name="c2"> Autre</label>
+          </div>
+        </div>
+
+        <!-- C3 -->
+        <div class="q-block client-q">
+          <span class="q-num client">C3</span>
+          <div class="q-text">Avez-vous déclaré un ou plusieurs sinistres au cours des 5 dernières années ? <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="c3" value="0"> Aucun sinistre</label>
+            <label class="opt-label wide"><input type="radio" name="c3" value="1"> 1 sinistre</label>
+            <label class="opt-label wide"><input type="radio" name="c3" value="2-3"> 2 à 3 sinistres</label>
+            <label class="opt-label wide"><input type="radio" name="c3" value="4+"> 4 sinistres ou plus</label>
+          </div>
+        </div>
+
+        <!-- C4 -->
+        <div class="q-block client-q">
+          <span class="q-num client">C4</span>
+          <div class="q-text">Comment évaluez-vous le niveau de risque lié à votre profil personnel (profession, mode de vie, localisation…) ? <span class="q-required">*</span></div>
+          <div class="scale-row">
+            <span class="scale-label">Très faible</span>
+            <div class="scale-boxes">
+              <div class="scale-box"><input type="radio" name="c4" value="1"><span>1</span></div>
+              <div class="scale-box"><input type="radio" name="c4" value="2"><span>2</span></div>
+              <div class="scale-box"><input type="radio" name="c4" value="3"><span>3</span></div>
+              <div class="scale-box"><input type="radio" name="c4" value="4"><span>4</span></div>
+              <div class="scale-box"><input type="radio" name="c4" value="5"><span>5</span></div>
+            </div>
+            <span class="scale-label right">Très élevé</span>
+          </div>
+        </div>
+
+        <!-- C5 -->
+        <div class="q-block client-q full">
+          <span class="q-num client">C5</span>
+          <div class="q-text">Lors de votre dernier sinistre (si applicable), quel délai s'est écoulé entre la déclaration et le règlement définitif ?</div>
+          <div class="options">
+            <label class="opt-label"><input type="radio" name="c5" value="na"> Sans objet</label>
+            <label class="opt-label"><input type="radio" name="c5" value="moins1mois"> Moins d'1 mois</label>
+            <label class="opt-label"><input type="radio" name="c5" value="1-3mois"> 1 à 3 mois</label>
+            <label class="opt-label"><input type="radio" name="c5" value="3-6mois"> 3 à 6 mois</label>
+            <label class="opt-label"><input type="radio" name="c5" value="6mois+"> Plus de 6 mois</label>
+          </div>
+        </div>
+
+        <!-- C6 -->
+        <div class="q-block client-q full">
+          <span class="q-num client">C6</span>
+          <div class="q-text">Seriez-vous prêt(e) à partager les données suivantes avec votre assureur pour obtenir une prime personnalisée plus juste ? <span class="q-required">*</span><br><small style="color:var(--muted)">(Cochez toutes les cases applicables)</small></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+            <label class="opt-label wide"><input type="checkbox"> Données de conduite (boîtier télématique)</label>
+            <label class="opt-label wide"><input type="checkbox"> Données GPS et trajets habituels</label>
+            <label class="opt-label wide"><input type="checkbox"> Historique de santé (maladies, traitements)</label>
+            <label class="opt-label wide"><input type="checkbox"> Données du logement (capteurs IoT)</label>
+            <label class="opt-label wide"><input type="checkbox"> Activités physiques (montre connectée)</label>
+            <label class="opt-label wide"><input type="checkbox"> Aucune de ces données</label>
+          </div>
+        </div>
+
+        <!-- C7 -->
+        <div class="q-block client-q full">
+          <span class="q-num client">C7</span>
+          <div class="q-text">Si l'IA pouvait vous proposer une prime d'assurance dynamique (ajustée en temps réel selon votre comportement), seriez-vous favorable à ce système ? <span class="q-required">*</span></div>
+          <div class="options">
+            <label class="opt-label wide"><input type="radio" name="c7" value="tres_fav"> Très favorable</label>
+            <label class="opt-label wide"><input type="radio" name="c7" value="plutot_fav"> Plutôt favorable</label>
+            <label class="opt-label wide"><input type="radio" name="c7" value="neutre"> Neutre</label>
+            <label class="opt-label wide"><input type="radio" name="c7" value="plutot_def"> Plutôt défavorable</label>
+            <label class="opt-label wide"><input type="radio" name="c7" value="tres_def"> Très défavorable</label>
+          </div>
+        </div>
+
+        <!-- C8 -->
+        <div class="q-block client-q full">
+          <span class="q-num client">C8</span>
+          <div class="q-text">Êtes-vous satisfait(e) de la manière dont votre compagnie d'assurance actuelle évalue et communique sur vos risques personnels ? <span class="q-required">*</span></div>
+          <div class="scale-row">
+            <span class="scale-label">Très insatisfait(e)</span>
+            <div class="scale-boxes">
+              <div class="scale-box"><input type="radio" name="c8" value="1"><span>1</span></div>
+              <div class="scale-box"><input type="radio" name="c8" value="2"><span>2</span></div>
+              <div class="scale-box"><input type="radio" name="c8" value="3"><span>3</span></div>
+              <div class="scale-box"><input type="radio" name="c8" value="4"><span>4</span></div>
+              <div class="scale-box"><input type="radio" name="c8" value="5"><span>5</span></div>
+            </div>
+            <span class="scale-label right">Très satisfait(e)</span>
+          </div>
+        </div>
+
+        <!-- C9 -->
+        <div class="q-block client-q full">
+          <span class="q-num client">C9</span>
+          <div class="q-text">Pensez-vous que l'utilisation de l'IA par votre compagnie d'assurance améliorerait globalement votre expérience client ? <span class="q-required">*</span></div>
+          <div class="options">
+            <label class="opt-label"><input type="radio" name="c9" value="oui_certain"> Oui, certainement</label>
+            <label class="opt-label"><input type="radio" name="c9" value="probab_oui"> Probablement oui</label>
+            <label class="opt-label"><input type="radio" name="c9" value="neutre"> Neutre / Je ne sais pas</label>
+            <label class="opt-label"><input type="radio" name="c9" value="probab_non"> Probablement non</label>
+            <label class="opt-label"><input type="radio" name="c9" value="non_certain"> Non, certainement pas</label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════
+         SECTION IV — AGENTS UNIQUEMENT
+    ═════════════════════════════════════════ -->
+    <div class="part-divider"><span>Section réservée aux agents / professionnels</span></div>
+
+    <section>
+      <div class="section-header">
+        <div class="section-num agent">IV</div>
+        <div>
+          <div class="section-title" style="color:var(--agent-color)">Pratiques Professionnelles, Gestion des Sinistres et IA</div>
+          <div class="section-desc">Réservée aux agents, gestionnaires, souscripteurs et tout professionnel du secteur de l'assurance.</div>
+        </div>
+      </div>
+      <div class="section-band agent-band">
+        <span class="target-badge agent">🏢 Réservée aux agents / professionnels — Section IV</span>
+        <p>Si vous êtes client, passez directement à la <strong>Section V</strong>. Ces questions portent sur vos pratiques professionnelles et votre utilisation (actuelle ou potentielle) des outils d'IA dans votre travail.</p>
+      </div>
+
+      <div class="question-grid">
+
+        <!-- A1 -->
+        <div class="q-block agent-q">
+          <span class="q-num agent">A1</span>
+          <div class="q-text">Quelle est votre fonction principale dans le secteur de l'assurance ? <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="a1" value="agent_com"> Agent commercial / Courtier</label>
+            <label class="opt-label wide"><input type="radio" name="a1" value="souscript"> Souscripteur / Tarificateur</label>
+            <label class="opt-label wide"><input type="radio" name="a1" value="gestionnaire"> Gestionnaire de sinistres / Expert</label>
+            <label class="opt-label wide"><input type="radio" name="a1" value="actuaire"> Actuaire / Analyste risque</label>
+            <label class="opt-label wide"><input type="radio" name="a1" value="dsi"> Informaticien(ne) / DSI</label>
+            <label class="opt-label wide"><input type="radio" name="a1" value="direction"> Cadre dirigeant(e)</label>
+            <label class="opt-label wide"><input type="radio" name="a1" value="autre"> Autre : <input type="text" style="border:0;border-bottom:1px solid #ccc;outline:none;width:110px;font-size:12px;"></label>
+          </div>
+        </div>
+
+        <!-- A2 -->
+        <div class="q-block agent-q">
+          <span class="q-num agent">A2</span>
+          <div class="q-text">Quelle est votre ancienneté dans le secteur de l'assurance ? <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="a2" value="moins2"> Moins de 2 ans</label>
+            <label class="opt-label wide"><input type="radio" name="a2" value="2-5"> 2 à 5 ans</label>
+            <label class="opt-label wide"><input type="radio" name="a2" value="5-10"> 5 à 10 ans</label>
+            <label class="opt-label wide"><input type="radio" name="a2" value="10-20"> 10 à 20 ans</label>
+            <label class="opt-label wide"><input type="radio" name="a2" value="20+"> Plus de 20 ans</label>
+          </div>
+        </div>
+
+        <!-- A3 -->
+        <div class="q-block agent-q full">
+          <span class="q-num agent">A3</span>
+          <div class="q-text">Dans votre pratique professionnelle actuelle, utilisez-vous des outils ou logiciels intégrant des fonctionnalités d'IA ? <span class="q-required">*</span></div>
+          <div class="options">
+            <label class="opt-label wide"><input type="radio" name="a3" value="oui_freq"> Oui, fréquemment (usage quotidien)</label>
+            <label class="opt-label wide"><input type="radio" name="a3" value="oui_occ"> Oui, occasionnellement</label>
+            <label class="opt-label wide"><input type="radio" name="a3" value="non_dispo"> Non, ces outils ne sont pas disponibles dans mon entreprise</label>
+            <label class="opt-label wide"><input type="radio" name="a3" value="non_besoin"> Non, je ne ressens pas le besoin</label>
+          </div>
+        </div>
+
+        <!-- A4 -->
+        <div class="q-block agent-q full">
+          <span class="q-num agent">A4</span>
+          <div class="q-text">Selon votre expérience, quels sont les principaux facteurs que vous prenez en compte pour estimer la probabilité d'un sinistre ? <em>(Cochez les 3 plus importants)</em></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+            <label class="opt-label wide"><input type="checkbox"> Profil socio-démographique de l'assuré</label>
+            <label class="opt-label wide"><input type="checkbox"> Historique des sinistres déclarés</label>
+            <label class="opt-label wide"><input type="checkbox"> Nature et valeur du bien assuré</label>
+            <label class="opt-label wide"><input type="checkbox"> Zone géographique / environnement</label>
+            <label class="opt-label wide"><input type="checkbox"> Comportement et style de vie</label>
+            <label class="opt-label wide"><input type="checkbox"> Données météorologiques et saisonnalité</label>
+            <label class="opt-label wide"><input type="checkbox"> Score de crédit / situation financière</label>
+            <label class="opt-label wide"><input type="checkbox"> Données telémétriques (IoT, GPS…)</label>
+          </div>
+        </div>
+
+        <!-- A5 Likert agents -->
+        <div class="q-block agent-q full">
+          <span class="q-num agent">A5</span>
+          <div class="q-text">En tant que professionnel(le), dans quelle mesure pensez-vous que l'IA pourrait améliorer les aspects suivants de votre métier ? <span class="q-required">*</span><br><small style="color:var(--muted)">(1 = Aucune amélioration &nbsp;·&nbsp; 5 = Amélioration majeure)</small></div>
+          <table class="likert-table agent-table">
+            <thead><tr><th style="width:52%">Aspect du métier</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+            <tbody>
+              <tr><td>Évaluation et tarification des risques</td><td><input type="radio" name="la1" value="1"></td><td><input type="radio" name="la1" value="2"></td><td><input type="radio" name="la1" value="3"></td><td><input type="radio" name="la1" value="4"></td><td><input type="radio" name="la1" value="5"></td></tr>
+              <tr><td>Détection de la fraude à l'assurance</td><td><input type="radio" name="la2" value="1"></td><td><input type="radio" name="la2" value="2"></td><td><input type="radio" name="la2" value="3"></td><td><input type="radio" name="la2" value="4"></td><td><input type="radio" name="la2" value="5"></td></tr>
+              <tr><td>Traitement et règlement des sinistres</td><td><input type="radio" name="la3" value="1"></td><td><input type="radio" name="la3" value="2"></td><td><input type="radio" name="la3" value="3"></td><td><input type="radio" name="la3" value="4"></td><td><input type="radio" name="la3" value="5"></td></tr>
+              <tr><td>Personnalisation des offres commerciales</td><td><input type="radio" name="la4" value="1"></td><td><input type="radio" name="la4" value="2"></td><td><input type="radio" name="la4" value="3"></td><td><input type="radio" name="la4" value="4"></td><td><input type="radio" name="la4" value="5"></td></tr>
+              <tr><td>Prévision proactive des risques émergents</td><td><input type="radio" name="la5" value="1"></td><td><input type="radio" name="la5" value="2"></td><td><input type="radio" name="la5" value="3"></td><td><input type="radio" name="la5" value="4"></td><td><input type="radio" name="la5" value="5"></td></tr>
+              <tr><td>Optimisation de la relation client</td><td><input type="radio" name="la6" value="1"></td><td><input type="radio" name="la6" value="2"></td><td><input type="radio" name="la6" value="3"></td><td><input type="radio" name="la6" value="4"></td><td><input type="radio" name="la6" value="5"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- A6 -->
+        <div class="q-block agent-q full">
+          <span class="q-num agent">A6</span>
+          <div class="q-text">Selon vous, quels types de données devraient être prioritairement intégrés dans un modèle IA d'estimation de sinistres ? <em>(Classez de 1 = plus pertinent à 5 = moins pertinent)</em></div>
+          <table class="rank-table agent-rank">
+            <thead><tr><th>Type de données</th><th>Rang (1–5)</th></tr></thead>
+            <tbody>
+              <tr><td>Données socio-démographiques (âge, profession, …)</td><td><input type="number" min="1" max="5" class="rank-input"></td></tr>
+              <tr><td>Historique des sinistres déclarés</td><td><input type="number" min="1" max="5" class="rank-input"></td></tr>
+              <tr><td>Données comportementales et télématiques en temps réel</td><td><input type="number" min="1" max="5" class="rank-input"></td></tr>
+              <tr><td>Données macroéconomiques et météorologiques</td><td><input type="number" min="1" max="5" class="rank-input"></td></tr>
+              <tr><td>Données issues des réseaux sociaux et du web</td><td><input type="number" min="1" max="5" class="rank-input"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- A7 -->
+        <div class="q-block agent-q full">
+          <span class="q-num agent">A7</span>
+          <div class="q-text">Quels sont, selon vous, les principaux obstacles à l'adoption de l'IA dans votre organisation ? <em>(Plusieurs réponses possibles)</em></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+            <label class="opt-label wide"><input type="checkbox"> Manque de données structurées et de qualité</label>
+            <label class="opt-label wide"><input type="checkbox"> Coût élevé de déploiement des solutions IA</label>
+            <label class="opt-label wide"><input type="checkbox"> Résistance au changement interne</label>
+            <label class="opt-label wide"><input type="checkbox"> Manque de compétences techniques (IA, data)</label>
+            <label class="opt-label wide"><input type="checkbox"> Contraintes réglementaires et juridiques</label>
+            <label class="opt-label wide"><input type="checkbox"> Problèmes de confidentialité et sécurité des données</label>
+            <label class="opt-label wide"><input type="checkbox"> Opacité des modèles (IA non explicable)</label>
+            <label class="opt-label wide"><input type="checkbox"> Aucun obstacle particulier</label>
+          </div>
+        </div>
+
+        <!-- A8 -->
+        <div class="q-block agent-q full">
+          <span class="q-num agent">A8</span>
+          <div class="q-text">Pensez-vous que l'IA remplacera à terme le rôle humain de l'expert en sinistres / souscripteur, ou le complétera simplement ? <span class="q-required">*</span></div>
+          <div class="options vertical">
+            <label class="opt-label wide"><input type="radio" name="a8" value="remplace_total"> L'IA remplacera totalement les professionnels à terme</label>
+            <label class="opt-label wide"><input type="radio" name="a8" value="remplace_partiel"> L'IA remplacera partiellement certaines fonctions</label>
+            <label class="opt-label wide"><input type="radio" name="a8" value="complement"> L'IA sera un outil complémentaire, pas un substitut</label>
+            <label class="opt-label wide"><input type="radio" name="a8" value="peu_impact"> L'IA aura peu d'impact sur notre métier</label>
+            <label class="opt-label wide"><input type="radio" name="a8" value="sais_pas"> Je ne sais pas</label>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════
+         SECTION V — COMMUN : RECOMMANDATIONS
+    ═════════════════════════════════════════ -->
+    <div class="part-divider"><span>Section commune finale</span></div>
+
+    <section>
+      <div class="section-header">
+        <div class="section-num">V</div>
+        <div>
+          <div class="section-title">Recommandations et Commentaires Libres</div>
+          <div class="section-desc">À compléter par tous les répondants.</div>
+        </div>
+      </div>
+      <div class="section-band shared-band">
+        <span class="target-badge shared">⬤ Section commune — tous répondants</span>
+        <p>Ces dernières questions recueillent votre avis global et vos suggestions pour améliorer l'utilisation de l'IA dans le secteur de l'assurance.</p>
+      </div>
+
+      <div class="question-grid">
+
+        <!-- Q10 -->
+        <div class="q-block full">
+          <span class="q-num">Q10</span>
+          <div class="q-text">Dans quels domaines pensez-vous que l'IA apporterait le plus de valeur ajoutée à STAR Assurance ? <em>(Plusieurs réponses possibles)</em></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+            <label class="opt-label wide"><input type="checkbox"> Détection des fraudes</label>
+            <label class="opt-label wide"><input type="checkbox"> Personnalisation des offres et des primes</label>
+            <label class="opt-label wide"><input type="checkbox"> Accélération du traitement des sinistres</label>
+            <label class="opt-label wide"><input type="checkbox"> Évaluation automatisée des dommages</label>
+            <label class="opt-label wide"><input type="checkbox"> Prévision proactive des risques</label>
+            <label class="opt-label wide"><input type="checkbox"> Amélioration de la relation client</label>
+            <label class="opt-label wide"><input type="checkbox"> Optimisation de la tarification</label>
+            <label class="opt-label wide"><input type="checkbox"> Autre : <input type="text" style="border:0;border-bottom:1px solid #ccc;outline:none;width:120px;font-size:12px;"></label>
+          </div>
+        </div>
+
+        <!-- Q11 -->
+        <div class="q-block full">
+          <span class="q-num">Q11</span>
+          <div class="q-text">Avez-vous des suggestions ou remarques supplémentaires concernant l'utilisation de l'IA pour améliorer l'estimation des sinistres dans le secteur de l'assurance ?</div>
+          <textarea class="answer-area" rows="4" placeholder="Vos commentaires libres ici…"></textarea>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SIGNATURE -->
+    <div class="signature-block">
+      <div class="sig-field"><label>Signature du répondant</label><div class="sig-line"></div></div>
+      <div class="sig-field"><label>Date de complétion</label><div class="sig-line"></div></div>
+      <div class="sig-field" style="grid-column:1/-1;">
+        <label>Note de confidentialité</label>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.6;">Les données collectées dans ce questionnaire sont strictement confidentielles et traitées de manière anonyme, conformément à la réglementation en vigueur sur la protection des données personnelles. Elles ne seront utilisées qu'à des fins de recherche académique. En signant, vous confirmez avoir rempli ce questionnaire de manière libre et éclairée.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <p>Questionnaire de Recherche · <span class="footer-gold">STAR Assurance &amp; Réassurance</span></p>
+    <p>Étude IA &amp; Probabilité des Sinistres · <span class="footer-gold">© 2025</span></p>
+  </div>
+
+</div>
+</body>
+</html>
